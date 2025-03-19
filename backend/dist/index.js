@@ -79,10 +79,26 @@ app.post("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter
     yield users_1.ContentModel.create({ title, link, userId: req.userId, tags: [] });
     res.json("Content Added!!");
 }));
-app.get("/api/v1/content", (req, res) => {
-});
-app.delete("/api/v1/conent", (req, res) => {
-});
+app.get("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //@ts-ignore
+    const userId = req.userId;
+    const content = yield users_1.ContentModel.findOne({
+        userId: userId
+    }).populate("userId", "username");
+    res.json({ content });
+}));
+app.delete("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const contentId = req.body.contentId;
+    try {
+        yield users_1.ContentModel.deleteMany({
+            _id: contentId
+        });
+        res.json("Deleted Content");
+    }
+    catch (error) {
+        res.json(error);
+    }
+}));
 app.post("/api/v1/brain/share", (req, res) => {
 });
 app.get("/api/v1/brain/:shareLink", (req, res) => {

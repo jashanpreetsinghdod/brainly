@@ -17,4 +17,4 @@ const ContentSchema = new Schema({
     userId: { type: mongoose_1.default.Types.ObjectId, ref: 'User', required: true }
 });
 exports.UserModel = model("User", UserSchema);
-exports.ContentModel = model("Conten", ContentSchema);
+exports.ContentModel = model("Content", ContentSchema);
