@@ -12,7 +12,6 @@ function userMiddleware(req, res, next) {
     const header = req.headers["authorization"];
     const decoded = jsonwebtoken_1.default.verify(header, JWT_SECRET);
     if (decoded) {
-        //@ts-ignore
         req.userId = decoded.id;
         next();
     }

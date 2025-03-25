@@ -76,12 +76,10 @@ app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, funct
 }));
 app.post("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { title, link } = req.body;
-    //@ts-ignore
     yield users_1.ContentModel.create({ title, link, userId: req.userId, tags: [] });
     res.json("Content Added!!");
 }));
 app.get("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //@ts-ignore
     const userId = req.userId;
     const content = yield users_1.ContentModel.findOne({
         userId: userId
@@ -103,18 +101,40 @@ app.delete("/api/v1/content", middleware_1.userMiddleware, (req, res) => __await
 app.post("/api/v1/brain/share", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const share = req.body.share;
     if (share) {
-        yield users_1.LinkModel.create({
-            //@ts-ignore
+        const existingLink = yield users_1.LinkModel.findOne({
+            userId: req.userId
+        });
+        if (existingLink) {
+            res.json({
+                hash: existingLink.hash
+            });
+            return;
+        }
+        const link = yield users_1.LinkModel.create({
             userId: req.userId,
             hash: (0, utils_1.random)(10)
+        });
+        res.json({
+            hash: link.hash
         });
     }
     else {
         yield users_1.LinkModel.deleteOne({
-            //@ts-ignore
             userId: req.userId
         });
+        res.json("Deleted the old link!!");
     }
 }));
-app.get("/api/v1/brain/:shareLink", (req, res) => {
-});
+app.get("/api/v1/brain/:shareLink", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const hash = req.params.shareLink;
+    const link = yield users_1.LinkModel.findOne({
+        hash
+    });
+    if (!link) {
+        res.json("Link not found");
+        return;
+    }
+    const content = yield users_1.ContentModel.find({
+        userId: link.userId
+    });
+}));
