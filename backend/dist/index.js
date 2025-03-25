@@ -19,6 +19,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const zod_1 = __importDefault(require("zod"));
 const users_1 = require("./models/users");
 const middleware_1 = require("./middleware");
+const utils_1 = require("./utils");
 const bcrypt = require("bcrypt");
 dotenv_1.default.config();
 const MONGO_URL = process.env.MONGO_URL;
@@ -99,7 +100,21 @@ app.delete("/api/v1/content", middleware_1.userMiddleware, (req, res) => __await
         res.json(error);
     }
 }));
-app.post("/api/v1/brain/share", (req, res) => {
-});
+app.post("/api/v1/brain/share", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const share = req.body.share;
+    if (share) {
+        yield users_1.LinkModel.create({
+            //@ts-ignore
+            userId: req.userId,
+            hash: (0, utils_1.random)(10)
+        });
+    }
+    else {
+        yield users_1.LinkModel.deleteOne({
+            //@ts-ignore
+            userId: req.userId
+        });
+    }
+}));
 app.get("/api/v1/brain/:shareLink", (req, res) => {
 });

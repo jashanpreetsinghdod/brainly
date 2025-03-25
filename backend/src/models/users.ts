@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import {z} from "zod";
+import {string, z} from "zod";
 
 const {Schema,model} = mongoose;
 
@@ -16,5 +16,12 @@ const ContentSchema= new Schema({
     userId:{type:mongoose.Types.ObjectId,ref:'User',required:true}
 })
 
+const LinkSchema=new Schema({
+    hash:String,
+    userId:{type:mongoose.Types.ObjectId,ref:'User',unique:true},
+})
+
+
+export const LinkModel=model("Link",LinkSchema);
 export const UserModel= model("User",UserSchema);
 export const ContentModel= model("Content",ContentSchema);

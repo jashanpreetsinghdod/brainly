@@ -12,7 +12,6 @@ export function userMiddleware(req:Request,res:Response,next:NextFunction){
     const decoded=jwt.verify(header as string,JWT_SECRET) as {id:string};
 
     if(decoded){
-        //@ts-ignore
         req.userId=decoded.id;
         next();
     }

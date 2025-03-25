@@ -3,8 +3,9 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import z from "zod";
-import { UserModel,ContentModel } from "./models/users";
+import { UserModel,ContentModel, LinkModel } from "./models/users";
 import { userMiddleware } from "./middleware";
+import { random } from "./utils";
 const bcrypt=require("bcrypt");
 dotenv.config();
 
@@ -76,7 +77,6 @@ app.post("/api/v1/signin",async (req,res)=>{
 
 app.post("/api/v1/content",userMiddleware,async (req,res)=>{
     const {title,link}=req.body;
-    //@ts-ignore
     await ContentModel.create({title,link,userId:req.userId,tags:[]});
 
     res.json("Content Added!!");
@@ -84,7 +84,6 @@ app.post("/api/v1/content",userMiddleware,async (req,res)=>{
 })
 
 app.get("/api/v1/content",userMiddleware,async (req,res)=>{
-    //@ts-ignore
     const userId=req.userId;
 
     const content=await ContentModel.findOne({
@@ -110,10 +109,39 @@ app.delete("/api/v1/content",userMiddleware,async (req,res)=>{
 
 })
 
-app.post("/api/v1/brain/share",(req,res)=>{
+app.post("/api/v1/brain/share",userMiddleware,async(req,res)=>{
+    const share=req.body.share;
 
+    if(share){
+        await LinkModel.create({
+            userId:req.userId,
+            hash:random(10)
+            
+        })
+    }
+    else{
+        await LinkModel.deleteOne({
+            userId:req.userId
+        })
+    }
+
+    res.json("Updated sharable link!!")
 })
 
-app.get("/api/v1/brain/:shareLink",(req,res)=>{
+app.get("/api/v1/brain/:shareLink",async (req,res)=>{
+    const hash=req.params.shareLink;
+
+    const link=await LinkModel.findOne({
+        hash
+    })
+
+    if(!link){
+        res.json("Link not found");
+        return;
+    }
+
+    const content=await ContentModel.find({
+        userId:link.userId
+    })
 
 })
